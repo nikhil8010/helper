@@ -1,0 +1,262 @@
+******Bankers Algoritham****
+
+#include<stdio.h>
+#include<stdlib.h>
+intind,A[10][10],M[10][10],N[10][10],Av[10],Safe[10],Finish[10],nor,nop,work[10],req[10][10];
+voidAcceptData(intX[][10])
+{
+inti,j;
+for(i=0;i<nop;i++)
+{
+printf("P%d:\n"
+,i);
+for(j=0;j<nor;j++)
+{
+printf("%c:"
+,65+j);
+scanf("%d"
+,&X[i][j]);
+}
+}
+}
+voidAcceptAvailability()
+{
+inti;
+for(i=0;i<nor;i++)
+{
+printf("%c"
+,65+i);
+scanf("%d"
+,&Av[i]);
+work[i]=Av[i];
+}
+}
+voidDisplayData()
+{
+inti,j;
+printf("\n\tAllocation\t\tMax\t\tNeed\n");
+printf("\t");
+for(i=0;i<3;i++)
+{
+for(j=0;j<nor;j++)
+printf("%4c"
+,65+j);
+printf("\t");
+}
+for(i=0;i<nop;i++)
+{
+printf("\nP%d\t"
+,i);
+for(j=0;j<nor;j++)
+printf("%4d"
+,A[i][j]);
+printf("\t");
+for(j=0;j<nor;j++)
+printf("%4d"
+,M[i][j]);
+printf("\t");
+for(j=0;j<nor;j++)
+printf("%4d"
+,N[i][j]);
+}
+printf("\nAvailable\n” );
+for(j=0;j<nor;j++)
+printf("%4d"
+,work[j]);
+}
+voidCalcNeed()
+{
+inti,j;
+for(i=0;i<nop;i++)
+for(j=0;j<nor;j++)
+N[i][j]=M[i][j]-A[i][j];
+}
+voidResource_Request(intno)
+{
+inti,f11=0,f12=0;
+for(i=0;i<nor;i++)
+{
+if(req[no][i]<=N[no][i])
+f11=1;
+else
+f11=0;
+}
+if(f11==0)
+{
+printf("\nError!Processhas exceededitsmaximumclaim");
+exit(0);
+}
+if(f11==1)
+{
+for(i=0;i<nor;i++)
+{
+if(req[no][i]<=work[i])
+f12=1;
+else
+f12=0;
+}
+if(f12==0)
+{
+printf("\nProcesshastowaitforresources");
+exit(0);
+}
+}
+if(f11==1&&f12==1)
+{
+for(i=0;i<nor;i++)
+{
+work[i]=work[i]-req[no][i];
+A[no][i]=A[no][i]+req[no][i];
+N[no][i]=N[no][i]-req[no][i];
+}
+}
+}
+intcheckNeed(intpno)
+{
+inti;
+for(i=0;i<nor;i++)
+if(N[pno][i]>work[i])
+return(0);
+return(1);
+}
+voidBanker()
+{
+inti=0,j=0,k=0,flag=0;
+while(flag<2)
+{
+if(!Finish[i])
+{
+printf("\nNeed%d("
+,i);
+for(j=0;j<nor;j++)
+printf("%d"
+,N[i][j]);
+if(!checkNeed(i))
+{
+printf("\b)>Work");
+for(j=0;j<nor;j++)
+printf("%d"
+,work[j]);
+printf("\b)");
+printf("\nNeedCannotbesatisfied,considernextprocess");
+}
+else
+{
+printf("b)<=Work(");
+for(j=0;j<nor;j++)
+printf("%d,
+"
+,work[j]);
+printf("\b)");
+printf("\nNeedcan besatisfied,soallocaterequiredresources");
+printf("\nWork(%d)=
+"
+,i);
+for(j=0;j<nor;j++)
+{
+work[j]+=A[i][j];
+}
+for(j=0;j<nor;j++)
+printf("%4d"
+,work[j]);
+printf("\nAfterP%dterminatesitwillreleaseallits resources\n"
+,i);
+Safe[k++]=i;
+Finish[i]=1;
+}
+}
+if((i+1)%nop==0)
+flag++;
+i=(i+1)%nop;
+}
+if(k==nop)
+{
+printf("\nSystemisinsafestate...");
+printf("\nSafeSequence:");
+for(i=0;i<k;i++)
+printf("P%d->"
+,Safe[i]);
+printf("\b\b");
+}
+else
+{
+printf("\nSystemisinnotsafestate...");
+}
+}
+intmain()
+{
+inti;
+printf("\nEnternoofprocesses&NoofResources:");
+scanf("%d%d"
+,&nop,&nor);
+printf("EnterAllocation\n");
+AcceptData(A);
+printf("EnterMaxRequirement\n");
+AcceptData(M);
+printf("EnterAvailability\n");
+AcceptAvailability();
+CalcNeed();
+DisplayData();
+Banker();
+printf("\nEnterProcessnumberfromwhichrequestarrives:");
+scanf("%d"
+,&ind);
+printf("\nEnterrequestforprocess%d\n"
+,ind);
+for(i=0;i<nor;i++)
+{
+printf("%c"
+,65+i);
+scanf("%d"
+,&req[ind][i]);
+}
+for(i=0;i<nop;i++)
+Finish[i]=0;
+for(i=0;i<nor;i++)
+work[i]=Av[i];
+Resource_Request(ind);
+Banker();
+return(0);
+}
+
+*********MPI********
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+#define ARRAY_SIZE 1000
+int main(int argc, char *argv[]) {
+int rank, size;
+int i, sum = 0;
+int data[ARRAY_SIZE];
+int local_sum = 0;
+MPI_Init(&argc, &argv);
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+MPI_Comm_size(MPI_COMM_WORLD, &size);
+// Generate random data
+if (rank == 0)
+{
+printf("Generating random data...\n");
+for (i = 0; i < ARRAY_SIZE; i++)
+{
+data[i] = rand() % 100;
+}
+}
+// Scatter data to all processes
+MPI_Scatter(data, ARRAY_SIZE/size, MPI_INT, data, ARRAY_SIZE/size, MPI_INT, 0,
+MPI_COMM_WORLD);
+// Calculate local sum
+for (i = 0; i < ARRAY_SIZE/size; i++)
+{
+local_sum += data[i];
+}
+// Reduce local sums to get the final sum
+MPI_Reduce(&local_sum, &sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+// Print the final sum
+if (rank == 0) {
+printf("The sum is: %d\n"
+, sum);
+}
+MPI_Finalize();
+return 0;
+}
